@@ -1,6 +1,6 @@
 #!/bin/bash
 
-npx tsc
+npx -y tsc
 
 if [ $? != 0 ]; then
   echo "Ocorreu um erro ao compilar o TypeScript, verifique seu código e tente novamente"
