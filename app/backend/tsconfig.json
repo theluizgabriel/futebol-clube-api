@@ -7,7 +7,6 @@
     "rootDir": "./src",
     "strict": true,
     "moduleResolution": "node",
-    "noImplicitAny": false,
     "baseUrl": ".", 
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
