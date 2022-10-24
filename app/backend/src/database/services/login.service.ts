@@ -10,10 +10,10 @@ export default class LoginService {
     const user = await this.userModel.findAll({ where: {
       email: data.email,
     } });
-    console.log('senha1', user[0]?.password);
-    console.log('senha2', data.password);
-    const result = bcrypt.compareSync(data.password, user[0]?.password);
 
+    if (!user[0]) return false;
+
+    const result = bcrypt.compareSync(data.password, user[0]?.password);
     return result;
   }
 }

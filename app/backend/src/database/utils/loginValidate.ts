@@ -1,13 +1,11 @@
-// import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-// function validateFields(req: Request, res: Response, next: NextFunction) {
-//   const { email, password } = req.body;
+function validateFields(req: Request, res: Response, next: NextFunction) {
+  const { email, password } = req.body;
 
-//   if (!email || !password) return res.status(400).json({ message: 'All fields must be filled' });
+  if (!email || !password) return res.status(400).json({ message: 'All fields must be filled' });
 
-//   next();
-// }
+  next();
+}
 
-// function validate
-
-// export default validationLogin;
+export default validateFields;
