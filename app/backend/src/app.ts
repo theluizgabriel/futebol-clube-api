@@ -16,7 +16,7 @@ class App {
 
   private router():void {
     this.app.use('/login', loginRoute);
-    this.app.use('/', loginRoute)
+    this.app.use('/', loginRoute);
   }
 
   private config():void {
