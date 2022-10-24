@@ -13,6 +13,10 @@ chai.use(chaiHttp);
 const { expect } = chai;
 
 describe('Seu teste', () => {
+  it('Requisição feita com sucesso deve retornar status 200', async () => {
+    const httpResponse = await chai.request(app).get('/')
+    expect(httpResponse.status).to.be.eq(200);
+  });
   /**
    * Exemplo do uso de stubs com tipos
    */
