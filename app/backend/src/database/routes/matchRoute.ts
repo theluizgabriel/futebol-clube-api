@@ -9,8 +9,11 @@ const teamController = new MatchController(new MatchService(Matches));
 
 router.get('/', async (req, res) => {
   const { inProgress } = req.query;
-  if (inProgress) { teamController.getMatchesByQuery(req, res); }
-  teamController.getMatches(req, res);
+  if (inProgress) {
+    teamController.getMatchesByQuery(req, res);
+  } else {
+    teamController.getMatches(req, res);
+  }
 });
 
 export default router;
