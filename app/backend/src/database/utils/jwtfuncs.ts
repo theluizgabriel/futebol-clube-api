@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
-import ILogin from '../entities/interfaces';
+import { ILogin } from '../entities/interfaces';
 
 dotenv.config();
 

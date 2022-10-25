@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 // import { JwtPayload } from 'jsonwebtoken';
 import Users from '../models/UsersModel';
-import ILogin from '../entities/interfaces';
+import { ILogin } from '../entities/interfaces';
 // import tokenGenerate from '../utils/jwtfuncs';
 
 export default class LoginService {
