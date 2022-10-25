@@ -7,6 +7,10 @@ const router = express.Router();
 
 const teamController = new MatchController(new MatchService(Matches));
 
-router.get('/', async (req, res) => { teamController.getMatches(req, res); });
+router.get('/', async (req, res) => {
+  const { inProgress } = req.query;
+  if (inProgress) { teamController.getMatchesByQuery(req, res); }
+  teamController.getMatches(req, res);
+});
 
 export default router;

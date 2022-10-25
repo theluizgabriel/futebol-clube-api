@@ -10,7 +10,7 @@ export default class MatchService {
   constructor(private matchModel = Matches) {}
 
   async getMatches(): Promise<IMatch[] | unknown> {
-    const user = await this.matchModel.findAll({
+    const matches = await this.matchModel.findAll({
       include: [{
         model: Teams,
         as: 'teamAway',
@@ -21,7 +21,24 @@ export default class MatchService {
         attributes: { exclude: ['id'] },
       },
       ] });
-    return user;
+    return matches;
+  }
+
+  async getMatchesByQuery(query: number): Promise<IMatch[] | unknown> {
+    const matches = await this.matchModel.findAll({
+      where: { inProgress: query },
+      include: [{
+        model: Teams,
+        as: 'teamAway',
+        attributes: { exclude: ['id'] },
+      }, {
+        model: Teams,
+        as: 'teamHome',
+        attributes: { exclude: ['id'] },
+      },
+      ],
+    });
+    return matches;
   }
 
   // async getTeamById(id: number): Promise<ITeam | null> {
