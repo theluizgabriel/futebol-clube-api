@@ -9,3 +9,8 @@ export interface ITeams {
     teamName: string;
   }
 }
+
+export interface ITeam {
+  id: number;
+  teamName: string;
+}
