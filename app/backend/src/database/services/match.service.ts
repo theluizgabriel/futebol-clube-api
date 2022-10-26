@@ -1,6 +1,7 @@
 // import * as bcrypt from 'bcryptjs';
 // import { JwtPayload } from 'jsonwebtoken';
 // import { IMatches } from '../entities/interfaces';
+import { Request } from 'express';
 import { IMatch } from '../entities/interfaces';
 import Matches from '../models/MatchesModel';
 import Teams from '../models/TeamsModel';
@@ -39,6 +40,24 @@ export default class MatchService {
       ],
     });
     return matches;
+  }
+
+  async createMatch(req: Request): Promise<IMatch | unknown> {
+    const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = req.body;
+    const match = await this.matchModel.create({
+      homeTeam,
+      awayTeam,
+      homeTeamGoals,
+      awayTeamGoals,
+      inProgress: 1,
+    });
+    return match;
+  }
+
+  async finishMatch(id: number): Promise<boolean | null> {
+    const update = await this.matchModel.update({ inProgress: 1 }, { where: { id } });
+    if (update) return true;
+    return null;
   }
 
   // async getTeamById(id: number): Promise<ITeam | null> {

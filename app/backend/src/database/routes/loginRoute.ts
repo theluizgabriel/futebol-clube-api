@@ -3,7 +3,7 @@ import LoginController from '../controllers/login.controller';
 import Users from '../models/UsersModel';
 import LoginService from '../services/login.service';
 import validateFields from '../utils/loginValidate';
-import validateToken from '../utils/tokenValidate';
+import { validateToken } from '../utils/tokenValidate';
 
 const router = express.Router();
 
