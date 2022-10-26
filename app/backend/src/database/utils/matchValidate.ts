@@ -7,20 +7,18 @@ const teamService = new TeamService(Teams);
 function validateDifferentTeams(req: Request, res: Response, next: NextFunction) {
   const { homeTeam, awayTeam } = req.body;
   if (homeTeam === awayTeam) {
-    res.status(422)
+    return res.status(422)
       .json({ message: 'It is not possible to create a match with two equal teams' });
   }
 
   next();
 }
 
-function validateTeamsExist(req: Request, res: Response, next: NextFunction) {
-  const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = req.body;
-  if (!homeTeam || !awayTeam || !homeTeamGoals || awayTeamGoals) {
-    return res.status(422).json({ message: 'Preencha os dados' });
-  }
-  const teamHome = teamService.getTeamById(homeTeam);
-  const teamAway = teamService.getTeamById(awayTeam);
+async function validateTeamsExist(req: Request, res: Response, next: NextFunction) {
+  const { homeTeam, awayTeam } = req.body;
+  const teamHome = await teamService.getTeamById(homeTeam);
+  const teamAway = await teamService.getTeamById(awayTeam);
+
   if (!teamHome || !teamAway) {
     return res.status(404).json({ message: 'There is no team with such id!' });
   }

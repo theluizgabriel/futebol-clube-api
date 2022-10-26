@@ -55,7 +55,8 @@ export default class MatchService {
   }
 
   async finishMatch(id: number): Promise<boolean | null> {
-    const update = await this.matchModel.update({ inProgress: 1 }, { where: { id } });
+    const update = await this.matchModel.update({ inProgress: 0 }, { where: { id } });
+
     if (update) return true;
     return null;
   }
