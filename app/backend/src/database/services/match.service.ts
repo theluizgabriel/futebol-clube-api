@@ -61,6 +61,19 @@ export default class MatchService {
     return null;
   }
 
+  async updateScoreboard(req: Request): Promise<boolean | null> {
+    const { id } = req.params;
+    const { homeTeamGoals, awayTeamGoals } = req.body;
+    const findTeam = await this.matchModel.findByPk(id);
+
+    if (findTeam?.inProgress === 1) {
+      await this.matchModel
+        .update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
+      return true;
+    }
+    return false;
+  }
+
   // async getTeamById(id: number): Promise<ITeam | null> {
   //   const user = await this.matchModel.findByPk(id);
   //   return user;

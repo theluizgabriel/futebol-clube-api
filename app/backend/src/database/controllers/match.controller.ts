@@ -33,4 +33,11 @@ export default class MatchController {
     await this._matchService.finishMatch(Number(id));
     return res.status(200).json({ message: 'Finished' });
   }
+
+  async updateScoreboard(req: Request, res: Response) {
+    const update = await this._matchService.updateScoreboard(req);
+
+    if (update === true) { return res.status(200).end(); }
+    return res.status(422).end({ message: 'alterado com sucesso' });
+  }
 }

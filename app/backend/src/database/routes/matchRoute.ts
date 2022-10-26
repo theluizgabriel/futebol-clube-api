@@ -27,5 +27,6 @@ router.post(
   async (req, res) => { matchController.createMatch(req, res); },
 );
 router.patch('/:id/finish', async (req, res) => { matchController.finishMatch(req, res); });
+router.patch('/:id', async (req, res) => { matchController.updateScoreboard(req, res); });
 
 export default router;
