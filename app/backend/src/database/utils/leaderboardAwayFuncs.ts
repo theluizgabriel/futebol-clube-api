@@ -118,20 +118,19 @@ export const getAllAndNameTeamAway = async () => {
 export const objectGetAllAway = async () => {
   const getAll = await getAllAndNameTeamAway();
   const {
-    name,
-    results: { victories, defeats, draws },
-    goals: { favor, own, balance },
-    points, games, efficiency } = getAll;
+    name, results, goals,
+    points, games, efficiency,
+  } = getAll;
   return {
     name,
     totalPoints: points,
     totalGames: games,
-    totalVictories: victories,
-    totalDraws: draws,
-    totalLosses: defeats,
-    goalsFavor: favor,
-    goalsOwn: own,
-    goalsBalance: balance,
+    totalVictories: results.victories,
+    totalDraws: results.draws,
+    totalLosses: results.defeats,
+    goalsFavor: goals.favor,
+    goalsOwn: goals.own,
+    goalsBalance: goals.balance,
     efficiency,
   };
 };

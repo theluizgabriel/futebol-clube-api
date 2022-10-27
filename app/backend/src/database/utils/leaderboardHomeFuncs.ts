@@ -1,29 +1,39 @@
 import Matches from '../models/MatchesModel';
 import Teams from '../models/TeamsModel';
 
-const getVictories = async () => {
-  const arrayVictories = [] as any;
-  const allMatches = await Matches.findAll({ where: { inProgress: false } });
-  const allVictoriesHome = allMatches.filter((match) => match.homeTeamGoals > match.awayTeamGoals);
-  allVictoriesHome.forEach((m) => {
-    const id = m.homeTeam;
-    const pos = arrayVictories.map((e: any) => e.id).indexOf(id);
-    if (pos > -1) {
-      arrayVictories[pos].results.victories += 1;
-    } else {
-      arrayVictories.push({
-        id,
-        results: { victories: 1, defeats: 0, draws: 0 },
-        goals: { favor: 0, own: 0, balance: 0 },
-      });
-    }
+export const getTeams = async () => {
+  const arrayTeams = [] as any;
+  const allTeams = await Teams.findAll();
+  allTeams.forEach((m) => {
+    arrayTeams.push({
+      id: m.id,
+      name: m.teamName,
+      results: { victories: 0, draws: 0, defeats: 0 },
+      goals: { favor: 0, own: 0, balance: 0 },
+      games: 0,
+      points: 0,
+      efficiency: 0,
+    });
   });
-
-  return arrayVictories;
+  return arrayTeams;
 };
 
-const getDefeatsWVictories = async () => {
-  const array = await getVictories();
+const getVictoriesHome = async () => {
+  const array = await getTeams();
+  const allMatches = await Matches.findAll({ where: { inProgress: false } });
+  const allVictoriesHome = allMatches.filter((match) => match.homeTeamGoals > match.awayTeamGoals);
+
+  allVictoriesHome.forEach((m) => {
+    const id = m.homeTeam;
+    const pos = array.map((e: any) => e.id).indexOf(id);
+    if (pos > -1) { array[pos].results.victories += 1; }
+  });
+
+  return array;
+};
+
+const getDefeatsWVictoriesHome = async () => {
+  const array = await getVictoriesHome();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   const allDefeatsHome = allMatches.filter((match) => match.homeTeamGoals < match.awayTeamGoals);
 
@@ -36,8 +46,8 @@ const getDefeatsWVictories = async () => {
   return array;
 };
 
-const getDrawsWVAndD = async () => {
-  const array = await getDefeatsWVictories();
+const getDrawsWVAndDHome = async () => {
+  const array = await getDefeatsWVictoriesHome();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   const allDrawsHome = allMatches.filter((match) => match.homeTeamGoals === match.awayTeamGoals);
 
@@ -50,8 +60,8 @@ const getDrawsWVAndD = async () => {
   return array;
 };
 
-const calculatePoints = async () => {
-  const results = await getDrawsWVAndD();
+const calculatePointsHome = async () => {
+  const results = await getDrawsWVAndDHome();
   results.forEach((r: any) => {
     const pos = results.map((e: any) => e.id).indexOf(r.id);
     const victories = r.results.victories * 3;
@@ -62,31 +72,28 @@ const calculatePoints = async () => {
   return results;
 };
 
-const getGamesAndNames = async () => {
-  const results = await calculatePoints();
-  results.forEach((r: any) => {
-    const pos = results.map((e: any) => e.id).indexOf(r.id);
-    const { victories, draws, defeats } = r.results;
+export const calculateEfficiencyHome = async () => {
+  const results = await calculatePointsHome();
+  results.forEach((t: any) => {
+    const pos = results.map((e: any) => e.id).indexOf(t.id);
+    const { victories, draws, defeats } = t.results;
     results[pos].games = victories + draws + defeats;
   });
 
-  return results;
-};
-
-const calculateEfficiency = async () => {
-  const results = await getGamesAndNames();
   results.forEach((r: any) => {
     const pos = results.map((e: any) => e.id).indexOf(r.id);
     const { points, games } = r;
+
     const efficiency = (points / (games * 3)) * 100;
+
     results[pos].efficiency = Number(efficiency.toFixed(2));
   });
 
   return results;
 };
 
-export const getAllAndGoalsHome = async () => {
-  const results = await calculateEfficiency();
+const getAllAndGoalsHome = async () => {
+  const results = await calculateEfficiencyHome();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   allMatches.forEach((m) => {
     results.forEach((r: any) => {
@@ -98,12 +105,11 @@ export const getAllAndGoalsHome = async () => {
       }
     });
   });
-  console.log(results);
 
   return results;
 };
 
-export const getAllAndNameTeam = async () => {
+const getAllAndNameTeamHome = async () => {
   const getAll = await getAllAndGoalsHome();
   const team = await Teams.findAll();
   getAll.forEach(async (t: any) => {
@@ -111,28 +117,56 @@ export const getAllAndNameTeam = async () => {
     const pos = getAll.map((e: any) => e.id).indexOf(t.id);
     getAll[pos].name = find?.teamName;
   });
-  console.log(getAll);
 
   return getAll;
 };
 
-export const objectGetAll = async () => {
-  const getAll = await getAllAndNameTeam();
-  const {
-    name,
-    results: { victories, defeats, draws },
-    goals: { favor, own, balance },
-    points, games, efficiency } = getAll;
-  return {
-    name,
-    totalPoints: points,
-    totalGames: games,
-    totalVictories: victories,
-    totalDraws: draws,
-    totalLosses: defeats,
-    goalsFavor: favor,
-    goalsOwn: own,
-    goalsBalance: balance,
-    efficiency,
-  };
+const objectGetAllHome = async () => {
+  const getAll = await getAllAndNameTeamHome();
+  const map = getAll.map((team: any) => ({
+    name: team.name,
+    totalPoints: team.points,
+    totalGames: team.games,
+    totalVictories: team.results.victories,
+    totalDraws: team.results.draws,
+    totalLosses: team.results.defeats,
+    goalsFavor: team.goals.favor,
+    goalsOwn: team.goals.own,
+    goalsBalance: team.goals.balance,
+    efficiency: team.efficiency,
+  }));
+  return map;
+};
+
+const getAllSortHome = async () => {
+  const object = await objectGetAllHome();
+  const order = object.sort((a: any, b: any) => {
+    if (a.goalsOwn < b.goalsOwn) return -1;
+    if (a.goalsOwn > b.goalsOwn) return 1;
+    if (a.goalsOwn === b.goalsOwn) {
+      if (a.goalsFavor > b.goalsFavor) return -1;
+      if (a.goalsFavor < b.goalsFavor) return 1;
+    }
+    return 0;
+  });
+  return order;
+};
+
+export const getAllHome = async () => {
+  const object = await getAllSortHome();
+  const order = object.sort((a: any, b: any) => {
+    if (a.goalsBalance > b.goalsBalance) return -1;
+    if (a.goalsBalance < b.goalsBalance) return 1;
+    if (a.goalsBalance === b.goalsBalance) {
+      if (a.goalsFavor > b.goalsFavor) return -1;
+      if (a.goalsFavor < b.goalsFavor) return 1;
+    }
+    return 0;
+  });
+  const order2 = order.sort((a: any, b: any) => {
+    if (a.totalPoints > b.totalPoints) return -1;
+    if (a.totalPoints < b.totalPoints) return 1;
+    return 0;
+  });
+  return order2;
 };
