@@ -45,7 +45,7 @@ describe('Teste da rota /login/validate', () => {
     .get('/login/validate')
     .set('Authorization', '')
     expect(httpResponse.status).to.be.eq(401);
-    expect(httpResponse.body).to.be.eq({ message: 'Unauthorized' })
+    expect(httpResponse.body).to.be.eq({ message: "Token must be a valid token" })
   });
   it('Requisição GET com token valido para saber o Role do usuario', async () => {
     const httpResponse = await chai.request(app)

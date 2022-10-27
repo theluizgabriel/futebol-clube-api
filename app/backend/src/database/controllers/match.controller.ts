@@ -7,6 +7,7 @@ export default class MatchController {
 
   async getMatches(req: Request, res: Response) {
     const matches = await this._matchService.getMatches();
+
     return res.status(200).json(matches);
   }
 
