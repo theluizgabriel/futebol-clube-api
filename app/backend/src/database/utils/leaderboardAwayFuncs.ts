@@ -1,29 +1,39 @@
 import Matches from '../models/MatchesModel';
 import Teams from '../models/TeamsModel';
 
-const getVictories = async () => {
-  const arrayVictories = [] as any;
-  const allMatches = await Matches.findAll({ where: { inProgress: false } });
-  const allVictoriesAway = allMatches.filter((match) => match.awayTeamGoals > match.homeTeamGoals);
-  allVictoriesAway.forEach((m) => {
-    const id = m.awayTeam;
-    const pos = arrayVictories.map((e: any) => e.id).indexOf(id);
-    if (pos > -1) {
-      arrayVictories[pos].results.victories += 1;
-    } else {
-      arrayVictories.push({
-        id,
-        results: { victories: 1, defeats: 0, draws: 0 },
-        goals: { favor: 0, own: 0, balance: 0 },
-      });
-    }
+export const getTeams = async () => {
+  const arrayTeams = [] as any;
+  const allTeams = await Teams.findAll();
+  allTeams.forEach((m) => {
+    arrayTeams.push({
+      id: m.id,
+      name: m.teamName,
+      results: { victories: 0, draws: 0, defeats: 0 },
+      goals: { favor: 0, own: 0, balance: 0 },
+      games: 0,
+      points: 0,
+      efficiency: 0,
+    });
   });
-
-  return arrayVictories;
+  return arrayTeams;
 };
 
-export const getDefeatsWVictories = async () => {
-  const array = await getVictories();
+const getVictoriesAway = async () => {
+  const array = await getTeams();
+  const allMatches = await Matches.findAll({ where: { inProgress: false } });
+  const allVictoriesAway = allMatches.filter((match) => match.awayTeamGoals > match.homeTeamGoals);
+
+  allVictoriesAway.forEach((m) => {
+    const id = m.awayTeam;
+    const pos = array.map((e: any) => e.id).indexOf(id);
+    if (pos > -1) { array[pos].results.victories += 1; }
+  });
+
+  return array;
+};
+
+const getDefeatsWVictoriesAway = async () => {
+  const array = await getVictoriesAway();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   const allDefeatsAway = allMatches.filter((match) => match.awayTeamGoals < match.homeTeamGoals);
 
@@ -36,8 +46,8 @@ export const getDefeatsWVictories = async () => {
   return array;
 };
 
-export const getDrawsWVAndD = async () => {
-  const array = await getDefeatsWVictories();
+const getDrawsWVAndDAway = async () => {
+  const array = await getDefeatsWVictoriesAway();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   const allDrawsAway = allMatches.filter((match) => match.homeTeamGoals === match.awayTeamGoals);
 
@@ -50,8 +60,8 @@ export const getDrawsWVAndD = async () => {
   return array;
 };
 
-export const calculatePoints = async () => {
-  const results = await getDrawsWVAndD();
+const calculatePointsAway = async () => {
+  const results = await getDrawsWVAndDAway();
   results.forEach((r: any) => {
     const pos = results.map((e: any) => e.id).indexOf(r.id);
     const victories = r.results.victories * 3;
@@ -62,31 +72,28 @@ export const calculatePoints = async () => {
   return results;
 };
 
-export const calculateGames = async () => {
-  const results = await calculatePoints();
-  results.forEach((r: any) => {
-    const pos = results.map((e: any) => e.id).indexOf(r.id);
-    const { victories, draws, defeats } = r.results;
+export const calculateEfficiencyAway = async () => {
+  const results = await calculatePointsAway();
+  results.forEach((t: any) => {
+    const pos = results.map((e: any) => e.id).indexOf(t.id);
+    const { victories, draws, defeats } = t.results;
     results[pos].games = victories + draws + defeats;
   });
 
-  return results;
-};
-
-export const calculateEfficiency = async () => {
-  const results = await calculateGames();
   results.forEach((r: any) => {
     const pos = results.map((e: any) => e.id).indexOf(r.id);
     const { points, games } = r;
+
     const efficiency = (points / (games * 3)) * 100;
-    results[pos].efficiency = efficiency.toFixed(2);
+
+    results[pos].efficiency = Number(efficiency.toFixed(2));
   });
 
   return results;
 };
 
-export const getAllAndGoalsAway = async () => {
-  const results = await calculateEfficiency();
+const getAllAndGoalsAway = async () => {
+  const results = await calculateEfficiencyAway();
   const allMatches = await Matches.findAll({ where: { inProgress: false } });
   allMatches.forEach((m) => {
     results.forEach((r: any) => {
@@ -98,12 +105,11 @@ export const getAllAndGoalsAway = async () => {
       }
     });
   });
-  console.log(results);
 
   return results;
 };
 
-export const getAllAndNameTeamAway = async () => {
+const getAllAndNameTeamAway = async () => {
   const getAll = await getAllAndGoalsAway();
   const team = await Teams.findAll();
   getAll.forEach(async (t: any) => {
@@ -115,22 +121,52 @@ export const getAllAndNameTeamAway = async () => {
   return getAll;
 };
 
-export const objectGetAllAway = async () => {
+const objectGetAllAway = async () => {
   const getAll = await getAllAndNameTeamAway();
-  const {
-    name, results, goals,
-    points, games, efficiency,
-  } = getAll;
-  return {
-    name,
-    totalPoints: points,
-    totalGames: games,
-    totalVictories: results.victories,
-    totalDraws: results.draws,
-    totalLosses: results.defeats,
-    goalsFavor: goals.favor,
-    goalsOwn: goals.own,
-    goalsBalance: goals.balance,
-    efficiency,
-  };
+  const map = getAll.map((team: any) => ({
+    name: team.name,
+    totalPoints: team.points,
+    totalGames: team.games,
+    totalVictories: team.results.victories,
+    totalDraws: team.results.draws,
+    totalLosses: team.results.defeats,
+    goalsFavor: team.goals.favor,
+    goalsOwn: team.goals.own,
+    goalsBalance: team.goals.balance,
+    efficiency: team.efficiency,
+  }));
+  return map;
+};
+
+const getAllSortAway = async () => {
+  const object = await objectGetAllAway();
+  const order = object.sort((a: any, b: any) => {
+    if (a.goalsOwn < b.goalsOwn) return -1;
+    if (a.goalsOwn > b.goalsOwn) return 1;
+    if (a.goalsOwn === b.goalsOwn) {
+      if (a.goalsFavor > b.goalsFavor) return -1;
+      if (a.goalsFavor < b.goalsFavor) return 1;
+    }
+    return 0;
+  });
+  return order;
+};
+
+export const getAllAway = async () => {
+  const object = await getAllSortAway();
+  const order = object.sort((a: any, b: any) => {
+    if (a.goalsBalance > b.goalsBalance) return -1;
+    if (a.goalsBalance < b.goalsBalance) return 1;
+    if (a.goalsBalance === b.goalsBalance) {
+      if (a.goalsFavor > b.goalsFavor) return -1;
+      if (a.goalsFavor < b.goalsFavor) return 1;
+    }
+    return 0;
+  });
+  const order2 = order.sort((a: any, b: any) => {
+    if (a.totalPoints > b.totalPoints) return -1;
+    if (a.totalPoints < b.totalPoints) return 1;
+    return 0;
+  });
+  return order2;
 };

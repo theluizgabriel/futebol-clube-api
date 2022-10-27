@@ -8,4 +8,9 @@ export default class LeaderboardController {
     const table = await this._leaderboardService.getTableHome();
     return res.status(200).json(table);
   }
+
+  async getTableAway(req: Request, res: Response) {
+    const table = await this._leaderboardService.getTableAway();
+    return res.status(200).json(table);
+  }
 }
