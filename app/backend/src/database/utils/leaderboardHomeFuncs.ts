@@ -1,3 +1,4 @@
+import { ILeaderboard } from '../entities/interfaces';
 import Matches from '../models/MatchesModel';
 import Teams from '../models/TeamsModel';
 
@@ -121,7 +122,7 @@ const getAllAndNameTeamHome = async () => {
   return getAll;
 };
 
-const objectGetAllHome = async () => {
+export const objectGetAllHome = async () => {
   const getAll = await getAllAndNameTeamHome();
   const map = getAll.map((team: any) => ({
     name: team.name,
@@ -138,9 +139,8 @@ const objectGetAllHome = async () => {
   return map;
 };
 
-const getAllSortHome = async () => {
-  const object = await objectGetAllHome();
-  const order = object.sort((a: any, b: any) => {
+export const getAllSort = async (array: ILeaderboard[]) => {
+  const order = array.sort((a: any, b: any) => {
     if (a.goalsOwn < b.goalsOwn) return -1;
     if (a.goalsOwn > b.goalsOwn) return 1;
     if (a.goalsOwn === b.goalsOwn) {
@@ -152,9 +152,8 @@ const getAllSortHome = async () => {
   return order;
 };
 
-export const getAllHome = async () => {
-  const object = await getAllSortHome();
-  const order = object.sort((a: any, b: any) => {
+export const getAllSort2 = async (array: ILeaderboard[]) => {
+  const order = array.sort((a: any, b: any) => {
     if (a.goalsBalance > b.goalsBalance) return -1;
     if (a.goalsBalance < b.goalsBalance) return 1;
     if (a.goalsBalance === b.goalsBalance) {

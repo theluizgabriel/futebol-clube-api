@@ -8,5 +8,6 @@ const leaderboardController = new LeaderboardController(new LeaderboardService()
 
 router.get('/home', async (req, res) => { leaderboardController.getTableHome(req, res); });
 router.get('/away', async (req, res) => { leaderboardController.getTableAway(req, res); });
+router.get('/', async (req, res) => { leaderboardController.getCompleteTable(req, res); });
 
 export default router;

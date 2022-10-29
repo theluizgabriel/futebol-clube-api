@@ -7,7 +7,7 @@ import chaiHttp = require('chai-http');
 import { app } from '../app';
 
 import { Response } from 'superagent';
-import { mockLeaderboardAway, mockLeaderboardHome } from './mockLeaderboard';
+import { mockLeaderboardAway, mockLeaderboardHome, mockLeaderboardPrincipal } from './mockLeaderboard';
 
 chai.use(chaiHttp);
 
@@ -28,5 +28,12 @@ describe('Teste da rota /leaderboard/home', () => {
     .get('/leaderboard/away')
     expect(httpResponse.status).to.be.eq(200)
     expect(httpResponse.body).to.deep.equal(mockLeaderboardAway)
+  });
+  it('Tabela Completa (Principal)', async () => {
+    const httpResponse = await chai
+    .request(app)
+    .get('/leaderboard/')
+    expect(httpResponse.status).to.be.eq(200)
+    expect(httpResponse.body).to.deep.equal(mockLeaderboardPrincipal)
   });
 });

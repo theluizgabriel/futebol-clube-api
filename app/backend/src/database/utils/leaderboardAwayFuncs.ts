@@ -121,7 +121,7 @@ const getAllAndNameTeamAway = async () => {
   return getAll;
 };
 
-const objectGetAllAway = async () => {
+export const objectGetAllAway = async () => {
   const getAll = await getAllAndNameTeamAway();
   const map = getAll.map((team: any) => ({
     name: team.name,
@@ -136,37 +136,4 @@ const objectGetAllAway = async () => {
     efficiency: team.efficiency,
   }));
   return map;
-};
-
-const getAllSortAway = async () => {
-  const object = await objectGetAllAway();
-  const order = object.sort((a: any, b: any) => {
-    if (a.goalsOwn < b.goalsOwn) return -1;
-    if (a.goalsOwn > b.goalsOwn) return 1;
-    if (a.goalsOwn === b.goalsOwn) {
-      if (a.goalsFavor > b.goalsFavor) return -1;
-      if (a.goalsFavor < b.goalsFavor) return 1;
-    }
-    return 0;
-  });
-  return order;
-};
-
-export const getAllAway = async () => {
-  const object = await getAllSortAway();
-  const order = object.sort((a: any, b: any) => {
-    if (a.goalsBalance > b.goalsBalance) return -1;
-    if (a.goalsBalance < b.goalsBalance) return 1;
-    if (a.goalsBalance === b.goalsBalance) {
-      if (a.goalsFavor > b.goalsFavor) return -1;
-      if (a.goalsFavor < b.goalsFavor) return 1;
-    }
-    return 0;
-  });
-  const order2 = order.sort((a: any, b: any) => {
-    if (a.totalPoints > b.totalPoints) return -1;
-    if (a.totalPoints < b.totalPoints) return 1;
-    return 0;
-  });
-  return order2;
 };
